@@ -1,4 +1,7 @@
    #include <stdio.h>
+   #include <stdlib.h>
+   #include <strings.h>
+   #include <string.h>
    #include <sys/types.h>
    #include <sys/socket.h>
    #include <netinet/in.h>
@@ -16,6 +19,7 @@
      struct sockaddr_in serv_addr;
      struct hostent *server;
      char buffer[256];
+     char recvBuff[512];
      if (argc < 3) {
         fprintf(stderr,"usage %s hostname port\n", argv[0]);
         exit(0);
@@ -37,17 +41,20 @@
      serv_addr.sin_port = htons(portno);
      if (connect(sockfd,(struct sockaddr *)&serv_addr,sizeof(serv_addr)) < 0) 
          error("ERROR connecting");
-     printf("Please enter the message: ");
-     bzero(buffer,256);
-     fgets(buffer,255,stdin);
-     n = write(sockfd,buffer,strlen(buffer));
-     if (n < 0) 
-          error("ERROR writing to socket");
-     bzero(buffer,256);
-     n = read(sockfd,buffer,255);
-     if (n < 0) 
-          error("ERROR reading from socket");
-     printf("%s\n",buffer);
+     while(1){
+	     printf("Please enter the message: ");
+	     bzero(buffer,256);
+	     bzero(recvBuff,512);
+	     fgets(buffer,255,stdin);
+	     n = write(sockfd,buffer,strlen(buffer));
+	     if (n < 0) 
+		  error("ERROR writing to socket");
+	     bzero(buffer,256);
+	     n = read(sockfd,recvBuff,512);
+	     if (n < 0) 
+		  error("ERROR reading from socket");
+	     printf("%s\n",recvBuff);
+     }
      return 0;
    }
 

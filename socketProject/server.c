@@ -1,4 +1,7 @@
   #include <stdio.h>
+  #include <stdlib.h>
+  #include <strings.h>
+  #include <string.h>
   #include <sys/types.h> 
   #include <sys/socket.h>
   #include <netinet/in.h>
@@ -13,6 +16,7 @@
    {
         int sockfd, newsockfd, portno, clilen;
         char buffer[256];
+        char sendBuff[512];
         struct sockaddr_in serv_addr, cli_addr;
         int n;
         if (argc < 2) {
@@ -35,12 +39,16 @@
         newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
         if (newsockfd < 0) 
              error("ERROR on accept");
-        bzero(buffer,256);
-        n = read(newsockfd,buffer,255);
-        if (n < 0) error("ERROR reading from socket");
-        printf("Here is the message: %s\n",buffer);
-        n = write(newsockfd,"I got your message",18);
-        if (n < 0) error("ERROR writing to socket");
+        while(1){
+		bzero(buffer,256);
+		bzero(sendBuff,512);
+		n = read(newsockfd,buffer,255);
+		if (n < 0) error("ERROR reading from socket");
+		printf("From Client: %s\n",buffer);
+		sprintf(sendBuff, "From Server: %s\n",buffer); 
+		n = write(newsockfd,sendBuff, sizeof(sendBuff));
+		if (n < 0) error("ERROR writing to socket");
+        }
         return 0; 
    }
 
